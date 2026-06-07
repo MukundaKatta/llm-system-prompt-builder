@@ -2,6 +2,6 @@
 
 from __future__ import annotations
 
-from .core import SectionKind, SystemPromptBuilder
+from .core import SectionKind, SectionNotFoundError, SystemPromptBuilder
 
-__all__ = ["SectionKind", "SystemPromptBuilder"]
+__all__ = ["SectionKind", "SectionNotFoundError", "SystemPromptBuilder"]

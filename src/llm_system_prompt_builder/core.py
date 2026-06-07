@@ -81,21 +81,25 @@ class _Section:
         return body
 
     def to_dict(self) -> dict[str, Any]:
+        content = list(self.content) if isinstance(self.content, list) else self.content
         return {
             "key": self.key,
             "heading": self.heading,
             "kind": self.kind.value,
-            "content": self.content,
+            "content": content,
             "order": self.order,
         }
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> _Section:
+        content = data["content"]
+        if isinstance(content, list):
+            content = list(content)
         return cls(
             key=data["key"],
             heading=data.get("heading", ""),
             kind=SectionKind(data.get("kind", SectionKind.CUSTOM.value)),
-            content=data["content"],
+            content=content,
             order=int(data.get("order", 40)),
         )
 

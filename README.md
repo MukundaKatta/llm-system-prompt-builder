@@ -58,6 +58,9 @@ Respond with a code block, then a one-sentence summary.
 | `clear()` | Remove all sections |
 | `to_dict()` / `from_dict(data)` | Serialise/restore |
 
+`remove_section` and `get_section` raise `SectionNotFoundError` (exported from
+the package) when the key is missing.
+
 ## License
 
 MIT

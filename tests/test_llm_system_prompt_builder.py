@@ -4,8 +4,12 @@ from __future__ import annotations
 
 import pytest
 
-from llm_system_prompt_builder import SectionKind, SystemPromptBuilder
-from llm_system_prompt_builder.core import SectionNotFoundError
+import llm_system_prompt_builder
+from llm_system_prompt_builder import (
+    SectionKind,
+    SectionNotFoundError,
+    SystemPromptBuilder,
+)
 
 # ---------------------------------------------------------------------------
 # SectionKind
@@ -352,3 +356,46 @@ def test_repr():
     r = repr(b)
     assert "SystemPromptBuilder" in r
     assert "__role__" in r
+
+
+# ---------------------------------------------------------------------------
+# Public API surface
+# ---------------------------------------------------------------------------
+
+
+def test_section_not_found_error_exported():
+    # SectionNotFoundError is part of the public API.
+    assert "SectionNotFoundError" in llm_system_prompt_builder.__all__
+    assert llm_system_prompt_builder.SectionNotFoundError is SectionNotFoundError
+
+
+# ---------------------------------------------------------------------------
+# Serialisation isolation (no internal aliasing)
+# ---------------------------------------------------------------------------
+
+
+def test_to_dict_does_not_alias_internal_list():
+    b = SystemPromptBuilder()
+    b.add_rule("Rule A")
+    d = b.to_dict()
+    # Mutating the serialised content must not touch the builder's state.
+    d["sections"][0]["content"].append("Injected")
+    assert b.get_section("__rules__").content == ["Rule A"]
+
+
+def test_from_dict_does_not_alias_input_list():
+    data = {
+        "sections": [
+            {
+                "key": "__rules__",
+                "heading": "Rules",
+                "kind": "rules",
+                "content": ["Rule A"],
+                "order": 20,
+            }
+        ]
+    }
+    b = SystemPromptBuilder.from_dict(data)
+    # Mutating the source dict must not touch the built builder's state.
+    data["sections"][0]["content"].append("Injected")
+    assert b.get_section("__rules__").content == ["Rule A"]
